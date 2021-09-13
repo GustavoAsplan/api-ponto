@@ -5,5 +5,9 @@ const router = new Router();
 
 
 
-router.get('/', pontoController.getBD);
+router.post('/info-user', pontoController.getInfoUser);
+router.post('/pontos-user', pontoController.getPontosUser);
+router.post('/salva', pontoController.SavePonto);
+router.post('/delete', pontoController.DeletePonto);
+router.patch('/', pontoController.AtualizarPonto);
 module.exports = router
