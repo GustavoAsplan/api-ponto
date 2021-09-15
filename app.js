@@ -1,7 +1,7 @@
 const express = require('express');
 const pontoRoutes = require('./src/routes/ponto.routes');
 const cors = require('cors');
-
+const { resolve } = require('path');
 
 
 const whitelist = ['https://suporte.asplan.com.br/', 'http://localhost:3000', 'http://localhost:3001'];
@@ -10,7 +10,7 @@ const corsOptions = {
         if (whitelist.indexOf(origin) !== -1 || !origin) {
             callback(null, true);
         } else {
-            callback(new Error('Not allowed by CORS'));
+            callback(null, true);
         }
     },
 };
@@ -27,9 +27,11 @@ class App {
     }
 
     async middlewares() {
-        this.app.use(express.urlencoded({ extended: true }));
-        this.app.use(express.json({ limit: '50mb' }));
+        this.app.use(express.json({ limit: '100mb', extended: true, parameterLimit: 50000 }));
+        this.app.use(express.urlencoded({ limit: '100mb', extended: true, parameterLimit: 50000 }));
         this.app.use(cors(corsOptions));
+        this.app.use(express.static(resolve(__dirname, 'uploads')));
+
 
     }
 }
