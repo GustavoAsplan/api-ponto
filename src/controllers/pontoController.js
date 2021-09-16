@@ -140,7 +140,36 @@ class PontoController {
         try {
 
             const { id } = req.body;
-            await sequelize.query(`UPDATE INTRA_ponto set status = '-1' where id = ${id}`);
+            const [data] = await sequelize.query(`SELECT * FROM intra_anexoponto where idponto = ${id}`);
+            for (let item of data) {
+
+                try {
+                    await sequelize.query(`DELETE intra_anexoponto where id = ${item.id}`);
+                    const ftp = new jsftp({
+                        host: 'suporte.asplan.com.br',
+                        user: 'asplan',
+                        pass: '4spl4n*',
+                        port: 21
+                    });
+
+                    await ftp.raw('dele', `httpdocs/intranet/anexos/${item.idponto}/${item.nome}`, (err) => {
+                        if (!err) {
+                            console.log("File delete successfully!");
+                        } else {
+                            console.log(err)
+                        }
+                    });
+
+                    ftp.on('error', () => {
+
+                    });
+
+                } catch (err) {
+                    console.log(err);
+                    throw new Error;
+                }
+            }
+            await sequelize.query(`DELETE INTRA_ponto where id = ${id}`);
             return res.json();
         } catch (err) {
             console.log(err);

@@ -1,5 +1,6 @@
 const express = require('express');
 const pontoRoutes = require('./src/routes/ponto.routes');
+const gestaoRoutes = require('./src/routes/gestao.routes');
 const cors = require('cors');
 const { resolve } = require('path');
 
@@ -24,6 +25,7 @@ class App {
 
     routes() {
         this.app.use('/', pontoRoutes);
+        this.app.use('/gestao', gestaoRoutes);
     }
 
     async middlewares() {
