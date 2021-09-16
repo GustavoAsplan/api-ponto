@@ -29,7 +29,7 @@ class PontoController {
     async getPontosUser(req, res) {
         try {
             const { id } = req.body;
-            const [data] = await sequelize.query(`SELECT * from intra_ponto where idFuncionario = ${id} and status = 1 `)
+            const [data] = await sequelize.query(`SELECT * from intra_ponto where idFuncionario = ${id} and (status = 1  or status = 0)`)
             return res.json(data);
         } catch (err) {
             console.log(err);
@@ -39,19 +39,15 @@ class PontoController {
 
     static async insertFiles(req, id) {
         try {
-            const { idFuncionario } = req.body.ponto;
+            const { idFuncionario } = req.body;
             const client = new ftp.Client();
             client.ftp.verbose = true;
-            let array = req.body.ponto.arquivos;
+            let array = req.files;
 
             for (let index of array) {
                 let random = Math.floor(Math.random() * (10000 - 1)) + 1;
-                let ex = index.name.split('.');
+                let ex = index.originalname.split('.');
                 let name = `${Date.now()}-${random}.${ex.pop()}`;
-
-
-                const foto = Object.values(index.buffer);
-                let buffer = Buffer.from(foto, 'binary');
 
 
 
@@ -80,7 +76,7 @@ class PontoController {
                     pass: '4spl4n*',
                     port: 21
                 });
-                await ftpFile.put(buffer, `/httpdocs/intranet/anexos/${id}/${name}`, (err) => {
+                await ftpFile.put(index.buffer, `/httpdocs/intranet/anexos/${id}/${name}`, (err) => {
                     if (!err) {
                         console.log("File transferred successfully!");
                     } else {
@@ -116,20 +112,25 @@ class PontoController {
     }
     async SavePonto(req, res) {
         try {
+            const upload = multer(multerConfig).array('arquivos');
+            return upload(req, res, async (error) => {
+                if (error) {
+                    console.log(error);
+                    return res.status(400).json();
+                }
+
+                const { idFuncionario, date, idGestor, item, justificativa, periodoDe, periodoAte,
+                    horas } = req.body;
 
 
-
-            const { ponto } = req.body;
-            const { idFuncionario, date, idGestor, item, justificativa, periodoDe, periodoAte,
-                horas } = ponto;
-
-
-            const [[id]] = await sequelize.query(`INSERT INTO INTRA_Ponto (idFuncionario, idGestor, data, item, periodo_de, periodo_ate, horas, justificativa, status) 
+                const [[id]] = await sequelize.query(`INSERT INTO INTRA_Ponto (idFuncionario, idGestor, data, item, periodo_de, periodo_ate, horas, justificativa, status) 
             values (${idFuncionario}, ${idGestor}, '${date}', '${item}', '${periodoDe}', '${periodoAte}', '${horas}', '${justificativa}', 1)
             SELECT SCOPE_IDENTITY() as id`)
 
-            await PontoController.insertFiles(req, id.id);
-            return res.json();
+                await PontoController.insertFiles(req, id.id);
+                return res.json();
+            })
+
         } catch (err) {
             console.log(err);
             return res.status(400).json();
@@ -146,18 +147,16 @@ class PontoController {
             return res.status(400).json();
         }
     }
-    AtualizarPonto(req, res) {
-        const upload = multer(multerConfig()).array('arquivos');
+    async AtualizarPonto(req, res) {
+        const upload = multer(multerConfig).array('arquivos');
         return upload(req, res, async (error) => {
             if (error) console.log(error)
             try {
 
-                console.log(req.files)
-                // const { id, ponto } = req.body;
-                // const { idFuncionario, date, idGestor, item, justificativa, periodoDe, periodoAte,
-                //     horas } = ponto;
-                // await PontoController.insertFiles(req, id);
-                // await sequelize.query(`UPDATE INTRA_Ponto set data = '${date}' , item = '${item}' , periodo_de = '${periodoDe}' , periodo_ate = '${periodoAte}' , horas = '${horas}' , justificativa = '${justificativa}' where id = ${id} `);
+                const { id, idFuncionario, date, idGestor, item, justificativa, periodoDe, periodoAte,
+                    horas } = req.body;
+                await PontoController.insertFiles(req, id);
+                await sequelize.query(`UPDATE INTRA_Ponto set data = '${date}' , item = '${item}' , periodo_de = '${periodoDe}' , periodo_ate = '${periodoAte}' , horas = '${horas}' , justificativa = '${justificativa}' where id = ${id} `);
                 return res.json();
             } catch (err) {
                 console.log(err);
@@ -165,6 +164,46 @@ class PontoController {
             }
         })
 
+    }
+
+    static async deleteFile(id, nome) {
+        try {
+            const ftp = new jsftp({
+                host: 'suporte.asplan.com.br',
+                user: 'asplan',
+                pass: '4spl4n*',
+                port: 21
+            });
+
+            await ftp.raw('dele', `httpdocs/intranet/anexos/${id}/${nome}`, (err) => {
+                if (!err) {
+                    console.log("File delete successfully!");
+                } else {
+                    console.log(err)
+                }
+            });
+
+            ftp.on('error', () => {
+
+            });
+
+        } catch (err) {
+            throw new Error;
+        }
+
+
+
+    }
+    async DeletarArquivo(req, res) {
+        try {
+            const { id, nome, idponto } = req.body
+            await sequelize.query(` DELETE FROM Intra_anexoponto where id = ${id} `);
+            await PontoController.deleteFile(idponto, nome);
+            return res.json();
+        } catch (err) {
+            console.log(err);
+            return res.status(400).json()
+        }
     }
 }
 

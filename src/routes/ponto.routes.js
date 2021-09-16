@@ -11,5 +11,6 @@ router.post('/salva', pontoController.SavePonto);
 router.post('/delete', pontoController.DeletePonto);
 router.post('/files', pontoController.getFiles);
 router.patch('/', pontoController.AtualizarPonto);
+router.post('/delete-file', pontoController.DeletarArquivo);
 
 module.exports = router

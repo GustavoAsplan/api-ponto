@@ -4,29 +4,24 @@ const sftpStorage = require('multer-sftp')
 
 const aleatorio = () => Math.floor(Math.random() * 10000 + 10000);
 
-module.exports = function () {
+const storage = sftpStorage({
+    sftp: {
+        host: 'suporte.asplan.com.br',
+        username: 'asplan',
+        password: '4spl4n*',
+        port: 22,
 
-    const storage = sftpStorage({
-        sftp: {
-            host: 'suporte.asplan.com.br',
-            user: 'asplan',
-            pass: '4spl4n*',
-            port: 22,
-
-        },
-        destination: (req, file, cb) => {
-            cb(null, 'tmp/');
-        },
-
-        filename: (req, file, cb) => {
-            cb(null, `${Date.now()}_${aleatorio()}${extname(file.originalname)}`);
-        },
     },
-    )
+    destination: (req, file, cb) => {
+        return cb(null, '/tmp/');
+    },
 
-
-
-    return {
-        storage: storage
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now())
     }
-};
+},
+)
+
+module.exports = storage;
+
+
