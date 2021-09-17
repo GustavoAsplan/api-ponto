@@ -185,7 +185,7 @@ class PontoController {
                 const { id, idFuncionario, date, idGestor, item, justificativa, periodoDe, periodoAte,
                     horas } = req.body;
                 await PontoController.insertFiles(req, id);
-                await sequelize.query(`UPDATE INTRA_Ponto set data = '${date}' , item = '${item}' , periodo_de = '${periodoDe}' , periodo_ate = '${periodoAte}' , horas = '${horas}' , justificativa = '${justificativa}' where id = ${id} `);
+                await sequelize.query(`UPDATE INTRA_Ponto set data = '${date}' , item = '${item}' , periodo_de = '${periodoDe}' , periodo_ate = '${periodoAte}' , motivoRecusado = '', horas = '${horas}' , justificativa = '${justificativa}' where id = ${id} `);
                 return res.json();
             } catch (err) {
                 console.log(err);

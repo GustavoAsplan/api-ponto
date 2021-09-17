@@ -7,5 +7,7 @@ const router = new Router();
 
 router.post('/', gestaoController.getPontos);
 router.post('/files', gestaoController.getFiles);
+router.post('/recusar', gestaoController.recusarPonto);
+router.post('/aprovar', gestaoController.aprovarPonto);
 
 module.exports = router

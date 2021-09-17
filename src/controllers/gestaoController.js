@@ -41,6 +41,39 @@ class GestapController {
             return res.status(400).json();
         }
     }
+
+    async recusarPonto(req, res) {
+        try {
+            const { idPonto, motivo, idGestor } = req.body;
+
+            const [[infos]] = await sequelize.query(`SELECT alcada, id from INTRA_funcionarios where id = ${idGestor}`);
+
+            await sequelize.query(`UPDATE intra_ponto set motivoRecusado = '${motivo}', status = ${infos.alcada - 1} where id = ${idPonto}`);
+
+            return res.json();
+        } catch (err) {
+
+            console.log(err);
+            return res.status(400).json();
+        }
+    }
+
+    async aprovarPonto(req, res) {
+        try {
+            console.log(req.body)
+            const { idPonto, idGestor } = req.body;
+
+            const [[infos]] = await sequelize.query(`SELECT alcada, id from INTRA_funcionarios where id = ${idGestor}`);
+
+            await sequelize.query(`UPDATE intra_ponto set motivoRecusado = '', status = ${infos.alcada + 1} where id = ${idPonto}`);
+
+            return res.json();
+        } catch (err) {
+
+            console.log(err);
+            return res.status(400).json();
+        }
+    }
 }
 
 
