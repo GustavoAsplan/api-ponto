@@ -136,6 +136,22 @@ class PontoController {
             return res.status(400).json();
         }
     }
+    async lastPontos(req, res) {
+        try {
+            const { id } = req.body;
+            const [data] = await sequelize.query(`
+            SELECT * FROM  INTRA_Ponto
+       WHERE Cast(data as date) >= DATEADD(day,-30,GETDATE()) 
+       and   Cast(data as date) <= getdate()
+       and idFuncionario = ${id}
+       and status > 1`);
+
+            return res.json(data);
+        } catch (err) {
+            console.log(err);
+            return res.status(400).json();
+        }
+    }
     async DeletePonto(req, res) {
         try {
 

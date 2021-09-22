@@ -9,6 +9,7 @@ router.post('/info-user', pontoController.getInfoUser);
 router.post('/pontos-user', pontoController.getPontosUser);
 router.post('/salva', pontoController.SavePonto);
 router.post('/delete', pontoController.DeletePonto);
+router.post('/last', pontoController.lastPontos);
 router.post('/files', pontoController.getFiles);
 router.patch('/', pontoController.AtualizarPonto);
 router.post('/delete-file', pontoController.DeletarArquivo);
