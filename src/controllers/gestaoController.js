@@ -19,7 +19,7 @@ class GestapController {
 
             if (infos.alcada === 3) {
                 [data] = await sequelize.query(`
-                    SELECT distinct(intra_ponto.id ),  intra_ponto.*, intra_funcionarios.nome, intra_funcionarios.departamento FROM INTRA_Ponto
+                    SELECT distinct(intra_ponto.id ),  intra_ponto.*, intra_funcionarios.* FROM INTRA_Ponto
                     inner join intra_funcionarios on INTRA_funcionarios.id = intra_ponto.idFuncionario 
                     inner join intra_departamento on INTRA_departamento.idGestor = intra_ponto.idGestor
                     inner join INTRA_departamentoxgestor on INTRA_departamentoxgestor.departamento = INTRA_departamento.id
@@ -51,11 +51,12 @@ class GestapController {
 
     async getPontosAprovados(req, res) {
         try {
-            const [data] = await sequelize.query(` SELECT distinct(intra_ponto.id ),  intra_ponto.*, intra_funcionarios.nome, intra_funcionarios.departamento FROM INTRA_Ponto
+            const { dataInicio, dataFim } = req.body;
+            const [data] = await sequelize.query(` SELECT distinct(intra_ponto.id ),  intra_ponto.*, intra_funcionarios.* FROM INTRA_Ponto
             inner join intra_funcionarios on INTRA_funcionarios.id = intra_ponto.idFuncionario 
             inner join intra_departamento on INTRA_departamento.idGestor = intra_ponto.idGestor
             inner join INTRA_departamentoxgestor on INTRA_departamentoxgestor.departamento = INTRA_departamento.id
-            where INTRA_ponto.status > 3`);
+            where INTRA_ponto.status > 3 and CAST(INTRA_Ponto.data as date) BETWEEN '${dataInicio}' and '${dataFim}'`);
 
             return res.json(data);
         } catch (err) {
