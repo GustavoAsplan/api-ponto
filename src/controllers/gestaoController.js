@@ -19,7 +19,7 @@ class GestapController {
 
             if (infos.alcada === 3) {
                 [data] = await sequelize.query(`
-                    SELECT distinct(intra_ponto.id ),  intra_ponto.*, intra_funcionarios.* FROM INTRA_Ponto
+                    SELECT distinct(intra_ponto.id ),  intra_ponto.*,  intra_funcionarios.nome, intra_funcionarios.departamento FROM INTRA_Ponto
                     inner join intra_funcionarios on INTRA_funcionarios.id = intra_ponto.idFuncionario 
                     inner join intra_departamento on INTRA_departamento.idGestor = intra_ponto.idGestor
                     inner join INTRA_departamentoxgestor on INTRA_departamentoxgestor.departamento = INTRA_departamento.id
@@ -98,9 +98,9 @@ class GestapController {
 
             const { idPonto, idGestor } = req.body;
 
-            const [[infos]] = await sequelize.query(`SELECT alcada, id from INTRA_funcionarios where id = ${idGestor}`);
+            const [[infos]] = await sequelize.query(`SELECT nome, alcada, id from INTRA_funcionarios where id = ${idGestor}`);
 
-            await sequelize.query(`UPDATE intra_ponto set motivoRecusado = '', status = ${infos.alcada + 1} where id = ${idPonto}`);
+            await sequelize.query(`UPDATE intra_ponto set nivel${infos.alcada} = '${infos.nome}', motivoRecusado = '', status = ${infos.alcada + 1} where id = ${idPonto}`);
 
             return res.json();
         } catch (err) {
