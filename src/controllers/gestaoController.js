@@ -19,22 +19,112 @@ class GestapController {
 
             if (infos.alcada === 3) {
                 [data] = await sequelize.query(`
-                    SELECT distinct(intra_ponto.id ),  intra_ponto.*,  intra_funcionarios.nome, intra_funcionarios.departamento FROM INTRA_Ponto
-                    inner join intra_funcionarios on INTRA_funcionarios.id = intra_ponto.idFuncionario 
-                    inner join intra_departamento on INTRA_departamento.idGestor = intra_ponto.idGestor
-                    inner join INTRA_departamentoxgestor on INTRA_departamentoxgestor.departamento = INTRA_departamento.id
-                    where INTRA_ponto.status < 4`);
+SELECT distinct(intra_ponto.id), count(distinct(INTRA_AnexoPonto.id)) as anexos, intra_ponto.*, intra_funcionarios.nome, intra_funcionarios.departamento, intra_funcionarios.codigo, intra_funcionarios.dtAdmissao FROM INTRA_Ponto
+left join intra_funcionarios on INTRA_funcionarios.id = intra_ponto.idFuncionario 
+left  join INTRA_AnexoPonto on  INTRA_Ponto.id = INTRA_AnexoPonto.idponto
+left join intra_departamento on INTRA_departamento.idGestor = intra_ponto.idGestor
+left join INTRA_departamentoxgestor on INTRA_departamentoxgestor.departamento = INTRA_departamento.id
+where INTRA_ponto.status < 4
+group by intra_ponto.id,
+intra_ponto.idFuncionario,
+intra_ponto.idGestor,
+intra_ponto.data,
+intra_ponto.item,
+intra_ponto.periodo_de,
+intra_ponto.periodo_ate,
+intra_ponto.horas,
+intra_ponto.justificativa,
+intra_ponto.status,
+intra_ponto.motivoRecusado,
+intra_ponto.nivel1,
+intra_ponto.nivel2,
+intra_ponto.nivel3,
+intra_funcionarios.id,
+intra_funcionarios.nome,
+intra_funcionarios.departamento,
+intra_funcionarios.email,
+intra_funcionarios.login,
+intra_funcionarios.telefone,
+intra_funcionarios.nextel,
+intra_funcionarios.celular,
+intra_funcionarios.empresa,
+intra_funcionarios.foto,
+intra_funcionarios.dtAniversario,
+intra_funcionarios.dtAdmissao,
+intra_funcionarios.dtsaidaFerias,
+intra_funcionarios.dtretornoFerias,
+intra_funcionarios.acesso,
+intra_funcionarios.senha,
+intra_funcionarios.gestor,
+intra_funcionarios.adm,
+intra_funcionarios.acessolivre,
+intra_funcionarios.msgNiver,
+intra_funcionarios.usuario,
+intra_funcionarios.registro,
+intra_funcionarios.funcao,
+intra_funcionarios.ctps,
+intra_funcionarios.codigo,
+intra_funcionarios.status,
+intra_funcionarios.deletado,
+intra_funcionarios.alcada
+`);
 
             } else {
 
 
                 try {
                     [data] = await sequelize.query(`
-                            SELECT distinct(intra_ponto.id), intra_ponto.*, intra_funcionarios.nome, intra_funcionarios.departamento, INTRA_departamentoxgestor.idGestor as ID_GESTOR FROM INTRA_Ponto
-                                        inner join intra_funcionarios on INTRA_funcionarios.id = intra_ponto.idFuncionario 
-                                        inner join intra_departamento on INTRA_departamento.idGestor = intra_ponto.idGestor
-                                        inner join INTRA_departamentoxgestor on INTRA_departamentoxgestor.departamento = INTRA_departamento.id
-                                        where INTRA_departamentoxgestor.idGestor = ${infos.id} and INTRA_ponto.status = ${infos.alcada}`);
+                            
+SELECT distinct(intra_ponto.id), count(distinct(INTRA_AnexoPonto.id)) as anexos, intra_ponto.*, intra_funcionarios.nome, intra_funcionarios.departamento, intra_funcionarios.codigo, intra_funcionarios.dtAdmissao FROM INTRA_Ponto
+left join intra_funcionarios on INTRA_funcionarios.id = intra_ponto.idFuncionario 
+left  join INTRA_AnexoPonto on  INTRA_Ponto.id = INTRA_AnexoPonto.idponto
+left join intra_departamento on INTRA_departamento.idGestor = intra_ponto.idGestor
+left join INTRA_departamentoxgestor on INTRA_departamentoxgestor.departamento = INTRA_departamento.id
+where INTRA_departamentoxgestor.idGestor = ${infos.id} and INTRA_ponto.status = ${infos.alcada}
+group by intra_ponto.id,
+intra_ponto.idFuncionario,
+intra_ponto.idGestor,
+intra_ponto.data,
+intra_ponto.item,
+intra_ponto.periodo_de,
+intra_ponto.periodo_ate,
+intra_ponto.horas,
+intra_ponto.justificativa,
+intra_ponto.status,
+intra_ponto.motivoRecusado,
+intra_ponto.nivel1,
+intra_ponto.nivel2,
+intra_ponto.nivel3,
+intra_funcionarios.id,
+intra_funcionarios.nome,
+intra_funcionarios.departamento,
+intra_funcionarios.email,
+intra_funcionarios.login,
+intra_funcionarios.telefone,
+intra_funcionarios.nextel,
+intra_funcionarios.celular,
+intra_funcionarios.empresa,
+intra_funcionarios.foto,
+intra_funcionarios.dtAniversario,
+intra_funcionarios.dtAdmissao,
+intra_funcionarios.dtsaidaFerias,
+intra_funcionarios.dtretornoFerias,
+intra_funcionarios.acesso,
+intra_funcionarios.senha,
+intra_funcionarios.gestor,
+intra_funcionarios.adm,
+intra_funcionarios.acessolivre,
+intra_funcionarios.msgNiver,
+intra_funcionarios.usuario,
+intra_funcionarios.registro,
+intra_funcionarios.funcao,
+intra_funcionarios.ctps,
+intra_funcionarios.codigo,
+intra_funcionarios.status,
+intra_funcionarios.deletado,
+intra_funcionarios.alcada
+
+                                      `);
                 } catch (err) {
                     console.log(err)
                 }
@@ -52,11 +142,31 @@ class GestapController {
     async getPontosAprovados(req, res) {
         try {
             const { dataInicio, dataFim } = req.body;
-            const [data] = await sequelize.query(` SELECT distinct(intra_ponto.id ),  intra_ponto.*, intra_funcionarios.* FROM INTRA_Ponto
+            const [data] = await sequelize.query(` SELECT distinct(intra_ponto.id ), count(distinct(INTRA_AnexoPonto.id)) as anexos,  intra_ponto.*, intra_funcionarios.nome, intra_funcionarios.departamento, intra_funcionarios.dtAdmissao, intra_funcionarios.codigo, intra_funcionarios.registro FROM INTRA_Ponto
             inner join intra_funcionarios on INTRA_funcionarios.id = intra_ponto.idFuncionario 
+            left  join INTRA_AnexoPonto on  INTRA_Ponto.id = INTRA_AnexoPonto.idponto
             inner join intra_departamento on INTRA_departamento.idGestor = intra_ponto.idGestor
             inner join INTRA_departamentoxgestor on INTRA_departamentoxgestor.departamento = INTRA_departamento.id
-            where INTRA_ponto.status > 3 and CAST(INTRA_Ponto.data as date) BETWEEN '${dataInicio}' and '${dataFim}'`);
+            where INTRA_ponto.status > 3 and CAST(INTRA_Ponto.data as date) BETWEEN '${dataInicio}' and '${dataFim}'
+            group by intra_ponto.id,
+intra_ponto.idFuncionario,
+intra_ponto.idGestor,
+intra_ponto.data,
+intra_ponto.item,
+intra_ponto.periodo_de,
+intra_ponto.periodo_ate,
+intra_ponto.horas,
+intra_ponto.justificativa,
+intra_ponto.status,
+intra_ponto.motivoRecusado,
+intra_ponto.nivel1,
+intra_ponto.nivel2,
+intra_ponto.nivel3,
+intra_funcionarios.nome,
+intra_funcionarios.departamento,
+intra_funcionarios.dtAdmissao,
+intra_funcionarios.registro,
+intra_funcionarios.codigo`);
 
             return res.json(data);
         } catch (err) {
