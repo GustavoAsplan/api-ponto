@@ -9,6 +9,12 @@ const { default: axios } = require('axios');
 
 class GestapController {
 
+
+    /**
+    * Rotas que pegam os pontos dos funcionarios baseado na alcada 
+    * @param {object} req.body Dados do funcionario para buscar os pontos
+    * @return {object} retorna os pontos dos funcionarios
+    */
     async getPontos(req, res) {
         try {
             const { id } = req.body;
@@ -139,6 +145,13 @@ intra_funcionarios.alcada
         }
     }
 
+
+
+    /**
+    * Pega os pontos aprovados  por data 
+    * @param {object} req.body Dados do gestor que irá pegar os pontos aprovados
+    * @return {object} retorna os pontos 
+    */
     async getPontosAprovados(req, res) {
         try {
             const { dataInicio, dataFim } = req.body;
@@ -147,7 +160,7 @@ intra_funcionarios.alcada
             left  join INTRA_AnexoPonto on  INTRA_Ponto.id = INTRA_AnexoPonto.idponto
             inner join intra_departamento on INTRA_departamento.idGestor = intra_ponto.idGestor
             inner join INTRA_departamentoxgestor on INTRA_departamentoxgestor.departamento = INTRA_departamento.id
-            where INTRA_ponto.status > 3 and CAST(INTRA_Ponto.data as date) BETWEEN '${dataInicio}' and '${dataFim}'
+            where INTRA_ponto.status > 3 and INTRA_Ponto.data BETWEEN '${dataInicio}' and '${dataFim}'
             group by intra_ponto.id,
 intra_ponto.idFuncionario,
 intra_ponto.idGestor,
@@ -174,6 +187,13 @@ intra_funcionarios.codigo`);
             return res.status(400).json();
         }
     }
+
+
+    /**
+    * Pega os arquivos de determinado ponto do usuario
+    * @param {object} req.body dados do ponto que irá buscar os arquivos
+    * @return {object} retorna os arquivos que foram encontrados
+    */
     async getFiles(req, res) {
         try {
             const { idPonto } = req.body;
@@ -186,6 +206,13 @@ intra_funcionarios.codigo`);
             return res.status(400).json();
         }
     }
+
+
+    /**
+    * Recusa um ponto 
+    * @param {object} req.body Dados do ponto que irá ser recusado
+    * @return {object} retorna sucesso ou erro 
+    */
 
     async recusarPonto(req, res) {
         try {
@@ -202,6 +229,15 @@ intra_funcionarios.codigo`);
             return res.status(400).json();
         }
     }
+
+
+
+    /**
+    * Aprova um ponto 
+    * @param {object} req.body Dados do ponto que irá ser aprovado
+    * @return {object} retorna sucesso ou erro
+    */
+
 
     async aprovarPonto(req, res) {
         try {

@@ -13,6 +13,12 @@ const multerConfig = require('../config/multer')
 class PontoController {
 
 
+
+    /**
+    * Pega informações do usuario
+    * @param {object} req.body.id ID do usuario que sera buscado 
+    * @return {object} Retorna um objeto com as informações do usuario
+    */
     async getInfoUser(req, res) {
         try {
             const { id } = req.body;
@@ -26,6 +32,13 @@ class PontoController {
             return res.status(400).json();
         }
     }
+
+
+    /**
+    * Pega os pontos dos usuarios
+    * @param {object} req.body.id ID do usuario que sera buscado 
+    * @return {object} Retorna os pontos do usuario 
+    */
     async getPontosUser(req, res) {
         try {
             const { id } = req.body;
@@ -37,6 +50,14 @@ class PontoController {
         }
     }
 
+
+
+    /**
+    * Insere os arquivos no FTP
+    * @param {object} req.body dados dos arquivos e onde deve ser gravado
+    * @param {number} id id do usuario que irá inserir os arquivos 
+    * @return {void}
+    */
     static async insertFiles(req, id) {
         try {
             const { idFuncionario } = req.body;
@@ -100,6 +121,13 @@ class PontoController {
     }
 
 
+
+    /**
+    * Pega os arquivos que foram inseridos no banco de dados
+    * @param {object} req.body dados de quem buscar os arquivos
+    * @return {object} retorna os arquivos do usuario
+    */
+
     async getFiles(req, res) {
         try {
             const { id } = req.body;
@@ -110,6 +138,14 @@ class PontoController {
             return res.status(400).json();
         }
     }
+
+
+
+    /**
+    * Salva os pontos
+    * @param {object} req.body Salva os pontos no banco de dados 
+    * @return {object} retorna sucesso ou erro 
+    */
     async SavePonto(req, res) {
         try {
             const upload = multer(multerConfig).array('arquivos');
@@ -136,6 +172,14 @@ class PontoController {
             return res.status(400).json();
         }
     }
+
+
+    /**
+    * Retorna os pontos dos ultimos 30 dias
+    * @param {object} req.body dados de quem buscar os pontos
+    * @return {object} retorna os pontos dos ultimos 30 dias
+    */
+
     async lastPontos(req, res) {
         try {
             const { id } = req.body;
@@ -152,6 +196,13 @@ class PontoController {
             return res.status(400).json();
         }
     }
+
+
+    /**
+    * Delete o ponto e os arquivos no FTP
+    * @param {object} req.body Dados do ponto que irá ser deletado 
+    * @return {object} retorna sucesso ou erro
+    */
     async DeletePonto(req, res) {
         try {
 
@@ -192,6 +243,13 @@ class PontoController {
             return res.status(400).json();
         }
     }
+
+
+    /**
+    * Atualiza o ponto
+    * @param {object} req.body Dados a serem alterados pelo ponto 
+    * @return {object} retorna sucesso ou erro
+    */
     async AtualizarPonto(req, res) {
         const upload = multer(multerConfig).array('arquivos');
         return upload(req, res, async (error) => {
@@ -211,6 +269,13 @@ class PontoController {
 
     }
 
+
+
+    /**
+    * Deleta um arquivo do FTP
+    * @param {object} req.body Dados do FTP e do arquivo que irá ser deletado 
+    * @return {void}
+    */
     static async deleteFile(id, nome) {
         try {
             const ftp = new jsftp({
@@ -239,6 +304,13 @@ class PontoController {
 
 
     }
+
+
+    /**
+    * Rota que chama o arquivo que deve ser deletado do ponto e chama a função que deleta do FTP
+    * @param {object} req.body Dados do ponto e do arquivo que ira ser delatado
+    * @return {object} retorna sucesso ou erro
+    */
     async DeletarArquivo(req, res) {
         try {
             const { id, nome, idponto } = req.body
